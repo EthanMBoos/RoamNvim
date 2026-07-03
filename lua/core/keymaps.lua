@@ -21,6 +21,18 @@ vim.diagnostic.config {
 
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
+-- Toggle inline diagnostic markers (virtual text / underline / signs) without
+-- disabling diagnostics themselves — <leader>sd and <leader>q still work.
+local diagnostics_visible = true
+vim.keymap.set('n', '<leader>ud', function()
+  diagnostics_visible = not diagnostics_visible
+  vim.diagnostic.config {
+    virtual_text = diagnostics_visible,
+    underline = diagnostics_visible and { severity = { min = vim.diagnostic.severity.WARN } } or false,
+    signs = diagnostics_visible,
+  }
+end, { desc = '[U]I: Toggle [D]iagnostic markers' })
+
 -- Exit builtin terminal mode more intuitively
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
