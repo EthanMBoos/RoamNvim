@@ -30,6 +30,49 @@ return {
     dependencies = { 'nvim-tree/nvim-web-devicons' },
     keys = {
       { '<leader>e', '<cmd>NvimTreeToggle<CR>', desc = 'Toggle file [E]xplorer' },
+      {
+        -- nvim-tree only ever has one root. To show extra top-level folders
+        -- (e.g. a sibling repo) in the SAME tree, symlink them into a small
+        -- persistent workspace dir and root the tree there instead.
+        '<leader>E',
+        function()
+          local workspace = vim.fn.stdpath 'cache' .. '/nvim-tree-workspace'
+          vim.fn.mkdir(workspace, 'p')
+
+          local function link(path)
+            path = vim.fn.fnamemodify(vim.fn.expand(path), ':p'):gsub('/$', '')
+            local name = vim.fn.fnamemodify(path, ':t')
+            local link_path = workspace .. '/' .. name
+            if vim.fn.getftype(link_path) == '' then
+              vim.fn.system({ 'ln', '-s', path, link_path })
+            end
+          end
+
+          link(vim.fn.getcwd())
+
+          local default = vim.fn.fnamemodify(vim.fn.getcwd(), ':h') .. '/'
+          local path = vim.fn.input({ prompt = 'Add folder to tree: ', default = default, completion = 'dir' })
+          if path == '' then return end
+          link(path)
+
+          require('nvim-tree.api').tree.change_root(workspace)
+          require('nvim-tree.api').tree.reload()
+          require('nvim-tree.api').tree.open()
+        end,
+        desc = 'Add folder to explorer tree',
+      },
+      {
+        -- Wipes the accumulated symlinks and re-roots back to cwd, so old
+        -- pairings from unrelated projects don't linger in the tree forever.
+        '<leader>C',
+        function()
+          local workspace = vim.fn.stdpath 'cache' .. '/nvim-tree-workspace'
+          vim.fn.system({ 'rm', '-rf', workspace })
+          require('nvim-tree.api').tree.change_root(vim.fn.getcwd())
+          require('nvim-tree.api').tree.reload()
+        end,
+        desc = 'Clear explorer workspace symlinks',
+      },
     },
     opts = {
       filters = { dotfiles = false },
