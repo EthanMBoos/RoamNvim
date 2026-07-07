@@ -42,13 +42,18 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
--- Window splits — matches Ghostty pane keys (alt+\ and alt+-)
+-- Window splits — matches Ghostty pane keys (ctrl+w prefix, vim convention)
 vim.keymap.set('n', '<leader>\\', '<cmd>vsp<CR>',   { desc = 'Split window vertically' })
 vim.keymap.set('n', '<leader>-',  '<cmd>sp<CR>',    { desc = 'Split window horizontally' })
 vim.keymap.set('n', '<leader>w',  '<cmd>close<CR>', { desc = 'Close current [W]indow' })
 
--- Window resize — alt+hjkl (shared with Ghostty pane resize via performable:)
-vim.keymap.set('n', '<M-h>', '<cmd>vertical resize +5<CR>', { desc = 'Grow window width' })
-vim.keymap.set('n', '<M-l>', '<cmd>vertical resize -5<CR>', { desc = 'Shrink window width' })
-vim.keymap.set('n', '<M-k>', '<cmd>resize +3<CR>',          { desc = 'Grow window height' })
-vim.keymap.set('n', '<M-j>', '<cmd>resize -3<CR>',          { desc = 'Shrink window height' })
+-- Window resize — ctrl+shift+hjkl: a direct chord (not a prefix), so holding the key
+-- auto-repeats and the split glides. Uses hjkl not arrows because macOS steals ctrl+arrows
+-- for Mission Control / Spaces before any app sees them. Mnemonic: ctrl+hjkl navigates,
+-- add shift to resize. Ghostty owns ctrl+shift+arrows for its panes and forwards
+-- ctrl+shift+hjkl through to Neovim, so the two layers stay separate. (Needs the kitty
+-- keyboard protocol to distinguish ctrl+shift from ctrl — Ghostty + Neovim 0.10+ have it.)
+vim.keymap.set('n', '<C-S-h>', '<cmd>vertical resize +2<CR>', { desc = 'Grow window width' })
+vim.keymap.set('n', '<C-S-l>', '<cmd>vertical resize -2<CR>', { desc = 'Shrink window width' })
+vim.keymap.set('n', '<C-S-j>', '<cmd>resize -1<CR>',          { desc = 'Shrink window height' })
+vim.keymap.set('n', '<C-S-k>', '<cmd>resize +1<CR>',          { desc = 'Grow window height' })

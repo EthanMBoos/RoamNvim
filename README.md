@@ -15,9 +15,10 @@ npm install -g @anthropic-ai/claude-code
 # 2. Clone this repo, then run the rest from inside it
 git clone <this-repo-url> RoamNvim && cd RoamNvim
 
-# 3. Ghostty config
+# 3. Ghostty config (symlink so repo edits apply live, same as Neovim below)
 mkdir -p ~/.config/ghostty
-cp ./ghostty/config ~/.config/ghostty/config
+mv ~/.config/ghostty/config ~/.config/ghostty/config.bak 2>/dev/null
+ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 
 # 4. Shell config (appends vi mode + fzf to existing zshrc)
 cat ./shell/zshrc >> ~/.zshrc && source ~/.zshrc
@@ -39,17 +40,51 @@ nvim
 
 ```bash
 # 1. Dependencies (apt; adjust for your distro)
-sudo apt install neovim git ripgrep fd-find make golang-go nodejs npm fzf
+sudo apt update
+sudo apt install -y git ripgrep fd-find make golang-go curl fzf unzip
+
+# Install latest Neovim (requires PPA for v0.10+)
+sudo add-apt-repository ppa:neovim-ppa/unstable -y
+sudo apt update
+sudo apt install -y neovim
+
+# Install nvm (Node Version Manager) - don't use apt's nodejs/npm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+# Load nvm immediately
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Install Node.js 22
+nvm install 22
+nvm alias default 22
+nvm use 22
+node --version
+
+# Install claude-code
 npm install -g @anthropic-ai/claude-code
-# Install JetBrainsMono Nerd Font manually: https://www.nerdfonts.com/font-downloads
-# Install Ghostty: https://ghostty.org
+
+# Install JetBrainsMono Nerd Font
+mkdir -p ~/.local/share/fonts
+cd ~/Downloads
+wget https://github.com/ryanoasis/nerd-fonts/releases/download/v3.1.1/JetBrainsMono.zip
+unzip -o JetBrainsMono.zip -d JetBrainsMono
+cp JetBrainsMono/*.ttf ~/.local/share/fonts/
+fc-cache -fv
+fc-list | grep -i "JetBrains"
+
+# Install Ghostty
+sudo add-apt-repository ppa:mkasberg/ghostty-ubuntu -y
+sudo apt update && sudo apt install ghostty -y
 
 # 2. Clone this repo, then run the rest from inside it
+cd ~
 git clone <this-repo-url> RoamNvim && cd RoamNvim
 
-# 3. Ghostty config
+# 3. Ghostty config (symlink so repo edits apply live, same as Neovim below)
 mkdir -p ~/.config/ghostty
-cp ./ghostty/config ~/.config/ghostty/config
+mv ~/.config/ghostty/config ~/.config/ghostty/config.bak 2>/dev/null
+ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 
 # 4. Shell config (appends vi mode + fzf to existing bashrc)
 cat ./shell/bashrc >> ~/.bashrc && source ~/.bashrc
@@ -74,13 +109,13 @@ Unified across Ghostty panes and Neovim windows. Typical layout: Ghostty horizon
 | Key | Action |
 |---|---|
 | `<Space>\` / `<Space>-` | New Neovim split vertical / horizontal |
-| `Alt+\` / `Alt+-` | New Ghostty pane vertical / horizontal |
+| `Ctrl+A \` / `Ctrl+A -` | New Ghostty pane vertical / horizontal |
 | `Ctrl+Shift+T` | New Ghostty tab (independent pane layout per tab) |
-| `<Space>w` / `Ctrl+Shift+W` | Close Neovim window / Ghostty pane |
+| `<Space>w` / `Ctrl+A x` | Close Neovim window / Ghostty pane |
 | `Ctrl+Tab` / `Ctrl+Shift+Tab` | Next / previous Ghostty tab |
 | `Ctrl+H/J/K/L` | Navigate between Neovim windows and Ghostty panes |
-| `Alt+Shift+H/J/K/L` | Resize Ghostty pane |
-| `Alt+H/J/K/L` | Resize Neovim window |
+| `Ctrl+Shift+Arrows` | Resize Ghostty pane (hold to glide) |
+| `Ctrl+Shift+H/J/K/L` | Resize Neovim window (hold to glide) |
 
 ## Neovim
 
@@ -134,7 +169,9 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | `Ctrl+Shift+C/V` | Copy / paste |
 | `Ctrl+Shift+T/N/W` | New tab / window / close |
 | `Ctrl+Tab` / `Ctrl+Shift+Tab` | Next / previous tab |
-| `Alt+\` / `Alt+-` | New pane vertical / horizontal |
+| `Ctrl+A \` / `Ctrl+A -` | New pane vertical / horizontal |
+| `Ctrl+A H/J/K/L` | Resize pane |
+| `Ctrl+A x` | Close pane |
 
 ## Shell (vi mode)
 
