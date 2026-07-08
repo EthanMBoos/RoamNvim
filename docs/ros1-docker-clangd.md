@@ -1,70 +1,41 @@
-# ROS 1 + Docker + clangd LSP
+# ROS 1 + devcontainer + clangd LSP
 
-Per-project setup. Two files go in each catkin workspace root inside the container.
+Use `remote-nvim.nvim` to open the workspace inside its `.devcontainer`. Neovim,
+clangd, and the build all run on the container side, so there is no `docker exec`
+wrapper or host/guest path mapping to maintain.
 
 ## Prerequisites
 
-- Container is running before opening Neovim
-- Workspace has been built: `catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
-- `exrc = true` is set in `lua/core/options.lua` (already done)
-- clangd is installed inside the container
+- `devpod` is installed on your local machine
+- The project has a working `.devcontainer/`
+- The devcontainer image installs `clangd`
+- The workspace is built in the container with `catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
 
-## File 1: `.nvim.lua` (workspace root, gitignore this)
+## Optional `.clangd` (workspace root, commit this)
 
-Edit the three variables for your project.
-
-```lua
-local container  = 'my_ros_container'       -- docker container name
-local host_path  = '/home/user/catkin_ws'   -- path on your Computer
-local guest_path = '/home/ros/catkin_ws'    -- path inside container
-
-vim.lsp.config('clangd', {
-  cmd = {
-    'docker', 'exec', '-i', container,
-    'clangd',
-    '--background-index',
-    '--path-mappings=' .. host_path .. '=' .. guest_path,
-    '--compile-commands-dir=' .. guest_path .. '/build',
-    '--completion-style=bundled',
-    '--header-insertion=iwyu',
-  },
-  capabilities = { offsetEncoding = 'utf-8' },
-  filetypes = { 'c', 'cpp' },
-})
-vim.lsp.enable('clangd')
-```
-
-## File 2: `.clangd` (workspace root, can commit this)
-
-Points clangd at the generated message headers in `devel/include/`.
+If ROS-generated headers live in `devel/include/`, point clangd at them with a
+container-side path:
 
 ```yaml
 CompileFlags:
   Add:
-    - -I/home/ros/catkin_ws/devel/include
+    - -I/workspaces/your_ws/devel/include
 ```
 
-Use the **container-side** path here, not the host path.
-
-## Gitignore
-
-Add `.nvim.lua` to `~/.gitignore_global` (container name is machine-specific):
-
-```
-.nvim.lua
-```
+Use the path as it exists **inside the devcontainer**.
 
 ## Workflow
 
-1. Start container
-2. `catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=ON` inside container
-3. Open Neovim from workspace root on host — exrc sources `.nvim.lua` automatically
-4. Open any `.cpp` file — clangd starts inside the container, custom messages resolve
+1. Open Neovim from the project root on your host
+2. Run `:RemoteStart`
+3. Pick the current project's `.devcontainer`
+4. In the remote session, build the workspace with `catkin_make -DCMAKE_EXPORT_COMPILE_COMMANDS=ON`
+5. Open any `.cpp` file — clangd now runs inside the container and reads the container paths directly
 
 ## Troubleshooting
 
-**clangd not starting** — check `:LspInfo`. Container must be running and `docker exec` must work.
+**Devcontainer does not show up** — confirm `.devcontainer/` exists in the current project and `devpod` is on `PATH`. `:checkhealth remote-nvim` is the fastest sanity check.
 
-**Custom messages not resolving** — confirm `devel/include/your_msgs/` exists (workspace must be built first).
+**clangd not starting** — check `:LspInfo` inside the remote session. The container image must include `clangd`.
 
-**Wrong paths** — run `:LspLog` to see the exact command clangd was started with.
+**Custom messages not resolving** — confirm `devel/include/your_msgs/` exists after the in-container build.

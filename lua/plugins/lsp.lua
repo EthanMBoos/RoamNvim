@@ -67,8 +67,8 @@ return {
       -- Server configs — add/remove as needed; mason installs them automatically
       ---@type table<string, vim.lsp.Config>
       local servers = {
-        -- pyright = {} configured per-project via .nvim.lua (venv / conda paths vary)
-        -- clangd default — overridden per-project via .nvim.lua for ROS / Docker setups
+        -- pyright = {} can be enabled when you want a Python LSP locally
+        -- clangd default — remote-nvim + devcontainers keep clangd on the container side
         clangd   = {},
         ts_ls    = {},  -- TypeScript + JavaScript
         gopls    = {},

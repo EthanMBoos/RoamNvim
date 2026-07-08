@@ -130,6 +130,7 @@ return {
       spec = {
         { '<leader>a', group = '[A]I' },
         { '<leader>f', group = '[F]ind/[F]iles' },
+        { '<leader>r', group = '[R]emote' },
         { '<leader>s', group = '[S]earch',    mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>g', group = '[G]it' },

@@ -21,4 +21,3 @@ vim.o.cursorline = true
 vim.o.scrolloff = 10
 vim.o.confirm = true
 vim.o.laststatus = 3
-vim.o.exrc = true

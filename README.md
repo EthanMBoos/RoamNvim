@@ -1,8 +1,8 @@
 # RoamNvim
 
-Ghostty handles terminal splits and pane navigation. `Ctrl+H/J/K/L` moves between Neovim windows and Ghostty panes with the same keys on both platforms, replacing what tmux used to do. Shell config is included. Complex LSP scenarios like ROS C++ inside Docker are documented with working configs, not stubs. Only what gets used is here.
+Ghostty handles terminal splits and pane navigation. `Ctrl+H/J/K/L` moves between Neovim windows and Ghostty panes with the same keys on both platforms, replacing what tmux used to do. Shell config is included. Complex LSP scenarios like ROS C++ inside devcontainers are documented with working configs, not stubs. Only what gets used is here.
 
-kickstart.nvim base · catppuccin · heirline · bufferline · claudecode.nvim
+kickstart.nvim base · catppuccin · heirline · bufferline · remote-nvim.nvim · claudecode.nvim
 
 ## macOS setup
 
@@ -11,6 +11,8 @@ kickstart.nvim base · catppuccin · heirline · bufferline · claudecode.nvim
 brew install neovim git ripgrep fd make go node fzf lazygit
 brew install --cask font-jetbrains-mono-nerd-font ghostty
 npm install -g @anthropic-ai/claude-code
+# For :RemoteStart into .devcontainer projects, also install devpod:
+# https://devpod.sh/docs/getting-started/install#install-devpod-cli
 
 # 2. Clone this repo, then run the rest from inside it
 git clone <this-repo-url> RoamNvim && cd RoamNvim
@@ -32,7 +34,7 @@ nvim
 
 # 7. LSP servers are auto-installed by mason on first file open (no action needed)
 #    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
-#    Exception: ROS C++ needs clangd installed inside the Docker container.
+#    Exception: ROS C++ needs clangd installed inside the devcontainer image.
 #    See docs/ros1-docker-clangd.md for that setup.
 ```
 
@@ -63,6 +65,9 @@ node --version
 
 # Install claude-code
 npm install -g @anthropic-ai/claude-code
+
+# For :RemoteStart into .devcontainer projects, also install devpod:
+# https://devpod.sh/docs/getting-started/install#install-devpod-cli
 
 # Install JetBrainsMono Nerd Font
 mkdir -p ~/.local/share/fonts
@@ -98,7 +103,7 @@ nvim
 
 # 7. LSP servers are auto-installed by mason on first file open (no action needed)
 #    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
-#    Exception: ROS C++ needs clangd installed inside the Docker container.
+#    Exception: ROS C++ needs clangd installed inside the devcontainer image.
 #    See docs/ros1-docker-clangd.md for that setup.
 ```
 
@@ -124,6 +129,7 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | Key | Action |
 |---|---|
 | `<Space>e` | Toggle file explorer |
+| `<Space>rs/ri/rx/rc/rl` | Remote: start / info / stop / cleanup / log |
 | `<Space>ff` / `<Space>fw` | Find files / live grep |
 | `<Tab>` / `<S-Tab>` | Next / previous buffer |
 | `<Space>x` | Close buffer |
@@ -138,6 +144,18 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | `<Space>fr` | Find and replace across codebase (grug-far) |
 | `<Space>ac` / `<Space>as` / `<Space>ar` | Claude: toggle / send selection / resume session |
 | `<Space>q` | Open diagnostic quickfix list |
+
+## Remote / devcontainers
+
+`remote-nvim.nvim` opens the current project inside its `.devcontainer`, so LSPs and tools run in the container instead of being shimmed from the host. Install `devpod`, open Neovim at the repo root, then run `:RemoteStart`.
+
+| Key | Action |
+|---|---|
+| `<Space>rs` | Start / attach to a remote session |
+| `<Space>ri` | Show remote session info |
+| `<Space>rx` | Stop the current remote session |
+| `<Space>rc` | Clean up remote workspace / config |
+| `<Space>rl` | Open remote-nvim logs |
 
 ## Git workflow
 
