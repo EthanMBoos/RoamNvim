@@ -19,7 +19,7 @@ vim.diagnostic.config {
   },
 }
 
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic location list' })
 
 -- Toggle inline diagnostic markers (virtual text / underline / signs) without
 -- disabling diagnostics themselves — <leader>sd and <leader>q still work.
@@ -52,7 +52,7 @@ vim.keymap.set('n', '<leader>w',  '<cmd>close<CR>', { desc = 'Close current [W]i
 -- for Mission Control / Spaces before any app sees them. Mnemonic: ctrl+hjkl navigates,
 -- add shift to resize. Ghostty owns ctrl+shift+arrows for its panes and forwards
 -- ctrl+shift+hjkl through to Neovim, so the two layers stay separate. (Needs the kitty
--- keyboard protocol to distinguish ctrl+shift from ctrl — Ghostty + Neovim 0.10+ have it.)
+-- keyboard protocol to distinguish ctrl+shift from ctrl — Ghostty + Neovim 0.11+ have it.)
 vim.keymap.set('n', '<C-S-h>', '<cmd>vertical resize +2<CR>', { desc = 'Grow window width' })
 vim.keymap.set('n', '<C-S-l>', '<cmd>vertical resize -2<CR>', { desc = 'Shrink window width' })
 vim.keymap.set('n', '<C-S-j>', '<cmd>resize -1<CR>',          { desc = 'Shrink window height' })

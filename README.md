@@ -4,6 +4,8 @@ Ghostty handles terminal splits and pane navigation. `Ctrl+H/J/K/L` moves betwee
 
 kickstart.nvim base · catppuccin · heirline · bufferline · remote-nvim.nvim · claudecode.nvim
 
+Requires Neovim 0.11+.
+
 ## macOS setup
 
 ```bash
@@ -45,7 +47,7 @@ nvim
 sudo apt update
 sudo apt install -y git ripgrep fd-find make golang-go curl fzf unzip
 
-# Install latest Neovim (requires PPA for v0.10+)
+# Install latest Neovim (this config requires v0.11+)
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
 sudo apt update
 sudo apt install -y neovim
@@ -143,7 +145,7 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | `<Space>gL` (visual) | Diffview: history for selected lines |
 | `<Space>fr` | Find and replace across codebase (grug-far) |
 | `<Space>ac` / `<Space>as` / `<Space>ar` | Claude: toggle / send selection / resume session |
-| `<Space>q` | Open diagnostic quickfix list |
+| `<Space>q` | Open diagnostic location list |
 
 ## Remote / devcontainers
 

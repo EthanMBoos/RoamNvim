@@ -41,19 +41,30 @@ return {
 
           local function link(path)
             path = vim.fn.fnamemodify(vim.fn.expand(path), ':p'):gsub('/$', '')
+            if not vim.uv.fs_stat(path) then
+              vim.notify('Folder not found: ' .. path, vim.log.levels.ERROR)
+              return false
+            end
+
             local name = vim.fn.fnamemodify(path, ':t')
             local link_path = workspace .. '/' .. name
             if vim.fn.getftype(link_path) == '' then
-              vim.fn.system({ 'ln', '-s', path, link_path })
+              local ok, err = vim.uv.fs_symlink(path, link_path)
+              if not ok then
+                vim.notify('Failed to add folder to tree: ' .. err, vim.log.levels.ERROR)
+                return false
+              end
             end
+
+            return true
           end
 
-          link(vim.fn.getcwd())
+          if not link(vim.fn.getcwd()) then return end
 
           local default = vim.fn.fnamemodify(vim.fn.getcwd(), ':h') .. '/'
           local path = vim.fn.input({ prompt = 'Add folder to tree: ', default = default, completion = 'dir' })
           if path == '' then return end
-          link(path)
+          if not link(path) then return end
 
           require('nvim-tree.api').tree.change_root(workspace)
           require('nvim-tree.api').tree.reload()
@@ -67,7 +78,9 @@ return {
         '<leader>C',
         function()
           local workspace = vim.fn.stdpath 'cache' .. '/nvim-tree-workspace'
-          vim.fn.system({ 'rm', '-rf', workspace })
+          if vim.fn.delete(workspace, 'rf') ~= 0 then
+            vim.notify('Failed to clear explorer workspace: ' .. workspace, vim.log.levels.ERROR)
+          end
           require('nvim-tree.api').tree.change_root(vim.fn.getcwd())
           require('nvim-tree.api').tree.reload()
         end,
@@ -111,8 +124,8 @@ return {
         local map = function(keys, func, desc)
           vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
         end
-        map(']c', gs.next_hunk,     'Next git hunk')
-        map('[c', gs.prev_hunk,     'Prev git hunk')
+        map(']c', function() gs.nav_hunk('next') end, 'Next git hunk')
+        map('[c', function() gs.nav_hunk('prev') end, 'Prev git hunk')
         map('<leader>gp', gs.preview_hunk, '[G]it [P]review hunk')
         map('<leader>gS', gs.stage_hunk,   '[G]it [S]tage hunk')
         map('<leader>gR', gs.reset_hunk,   '[G]it [R]eset hunk')
