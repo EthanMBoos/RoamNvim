@@ -215,3 +215,38 @@ rm -rf ~/.local/share/nvim/lazy/nvim-treesitter/parser/
 Then `:TSUpdate` inside Neovim.
 
 **Theme not applied**: run `:Lazy reload catppuccin` or restart Neovim.
+
+## AI coding (codecompanion)
+
+In-editor AI via codecompanion.nvim. The plan → build → judge rationale is in the
+comments of `lua/plugins/codecompanion.lua`; this is just setup and the two flows.
+Model names below are a July 2026 snapshot — swap them as cheaper/better options land.
+
+**Setup (both flows):**
+```bash
+# Activate: in lua/plugins/codecompanion.lua delete the top guard line:
+#   if true then return {} end
+# (plenary + treesitter are already installed.)
+
+echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.zshrc && source ~/.zshrc # or ~/.bashrc
+```
+Restart Neovim. `<leader>aa` toggles chat, `<leader>ai` is inline edit. Switch
+model/adapter in the chat buffer; save plans to a `.md` and hand them off.
+
+**Claude API key only:**
+Nothing beyond the setup above — the `codex` adapter stays unused. Run the whole loop
+on Claude: plan and judge with the strongest model, build with a mid-tier one. As of
+July 2026 that's Fable 5 to plan/judge, Sonnet 5 to build. If the org is
+zero-data-retention, Fable returns a 400 — use Opus 4.8 as the top model instead.
+
+**Optimize token cost:**
+Push the token-heavy build onto a flat-rate subscription so the API key only pays for
+the small plan/judge calls. This uses GitHub Copilot for the build step:
+```bash
+npm install -g @github/copilot   # GitHub Copilot CLI: gives a copilot binary on PATH
+copilot                          # run it once, /login, complete the GitHub device login
+```
+In the chat buffer switch to the `copilot_acp` adapter for the build (it drives
+`copilot --acp`; auth is the standard GitHub device flow, no API key).
+
+Plan and judge with Fable 5 (Anthropic API), build with a Copilot model (GPT-5.x).

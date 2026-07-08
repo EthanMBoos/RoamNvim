@@ -1,3 +1,5 @@
+-- if true then return {} end -- Uncomment to deactivate
+
 -- Auth: run `claude` once from a terminal after installing the CLI. It opens a
 -- browser to log in; this plugin then connects automatically to that session.
 return {
