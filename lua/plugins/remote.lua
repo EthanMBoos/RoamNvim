@@ -1,3 +1,12 @@
+-- Setup for remote servers with two-factor authentication:
+--   1. Copy your SSH key to the remote server to skip password prompts:
+--      ssh-copy-id -i ~/.ssh/id_rsa.pub user@remote-server.com
+--   2. You'll need to authenticate once (password + 2FA), then future connections
+--      only require 2FA (Duo push, etc.)
+--
+-- Note: The RemoteStart telescope picker requires entries in ~/.ssh/known_hosts
+--       Connect via terminal first if no entries appear: ssh user@remote-server.com
+
 return {
   {
     'amitds1997/remote-nvim.nvim',
@@ -25,6 +34,9 @@ return {
     opts = {
       devpod = {
         search_style = 'current_dir_only',
+      },
+      ssh = {
+        ssh_config_file_paths = { '$HOME/.ssh/config' },
       },
     },
   },
