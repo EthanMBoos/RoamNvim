@@ -6,6 +6,9 @@ scrollback-limit = 10000
 # Don't dim inactive splits (default 0.7 fades unfocused panes)
 unfocused-split-opacity = 1
 
+# Disable resize overlay indicator
+resize-overlay = never
+
 # Cross-platform keybinds (ctrl+shift matches Linux terminal convention)
 keybind = ctrl+shift+c=copy_to_clipboard
 keybind = ctrl+shift+v=paste_from_clipboard
