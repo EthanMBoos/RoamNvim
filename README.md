@@ -45,7 +45,7 @@ nvim
 ```bash
 # 1. Dependencies (apt; adjust for your distro)
 sudo apt update
-sudo apt install -y git ripgrep fd-find make golang-go curl fzf unzip
+sudo apt install -y git ripgrep fd-find make golang-go curl fzf unzip xclip
 
 # Install latest Neovim (this config requires v0.11+)
 sudo add-apt-repository ppa:neovim-ppa/unstable -y
