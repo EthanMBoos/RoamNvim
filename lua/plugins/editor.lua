@@ -141,7 +141,8 @@ return {
       delay = 0,
       icons = { mappings = vim.g.have_nerd_font },
       spec = {
-        { '<leader>a', group = '[A]I' },
+        { '<leader>a', group = '[A]I (avante)' },
+        { '<leader>c', group = '[C]laude Code' },
         { '<leader>f', group = '[F]ind/[F]iles' },
         { '<leader>r', group = '[R]emote' },
         { '<leader>s', group = '[S]earch',    mode = { 'n', 'v' } },

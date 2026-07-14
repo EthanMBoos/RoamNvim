@@ -144,7 +144,9 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | `<Space>gd/gc/gh/gH` | Diffview: open / close / file history / repo history |
 | `<Space>gL` (visual) | Diffview: history for selected lines |
 | `<Space>fr` | Find and replace across codebase (grug-far) |
-| `<Space>ac` / `<Space>as` / `<Space>ar` | Claude: toggle / send selection / resume session |
+| `<Space>cc` / `<Space>cs` / `<Space>cr` | Claude Code: toggle / send selection / resume session |
+| `<Space>aa` / `<Space>at` / `<Space>ae` | Avante: ask / toggle sidebar / inline edit (defaults) |
+| `<Space>ap` | Avante: switch provider (claude↔copilot; only with `ROAM_COPILOT=1`) |
 | `<Space>q` | Open diagnostic location list |
 
 ## Remote / devcontainers
@@ -236,37 +238,48 @@ Then `:TSUpdate` inside Neovim.
 
 **Theme not applied**: run `:Lazy reload catppuccin` or restart Neovim.
 
-## AI coding (codecompanion)
+## AI coding (avante)
 
-In-editor AI via codecompanion.nvim. The plan → build → judge rationale is in the
-comments of `lua/plugins/codecompanion.lua`; this is just setup and the two flows.
+In-editor AI via avante.nvim. The plan → build → judge rationale is in the
+comments of `lua/plugins/avante.lua`; this is just setup and the two flows.
 Model names below are a July 2026 snapshot — swap them as cheaper/better options land.
 
 **Setup (both flows):**
 ```bash
-# Activate: in lua/plugins/codecompanion.lua delete the top guard line:
+# Activate: in lua/plugins/avante.lua delete the top guard line:
 #   if true then return {} end
-# (plenary + treesitter are already installed.)
+# (plenary + treesitter are already installed; lazy pulls nui/copilot.lua and
+#  builds avante's companion binary via `make` on first start.)
 
 echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.zshrc && source ~/.zshrc # or ~/.bashrc
 ```
-Restart Neovim. `<leader>aa` toggles chat, `<leader>ai` is inline edit. Switch
-model/adapter in the chat buffer; save plans to a `.md` and hand them off.
+Restart Neovim (run `:Lazy sync` if it doesn't auto-install). Avante's default maps live
+under `<leader>a*`: `<leader>aa` asks, `<leader>at` toggles the sidebar, `<leader>ae` is
+inline edit (see `:h avante` for the rest). Save plans to a `.md` and hand them off.
 
-**Claude API key only:**
-Nothing beyond the setup above — the `codex` adapter stays unused. Run the whole loop
-on Claude: plan and judge with the strongest model, build with a mid-tier one. As of
-July 2026 that's Fable 5 to plan/judge, Sonnet 5 to build. If the org is
-zero-data-retention, Fable returns a 400 — use Opus 4.8 as the top model instead.
+**Claude API key only (the default — e.g. a work machine):**
+Nothing beyond the setup above. Copilot is opt-in (see below) and stays completely
+unwired unless you ask for it, so there's no way to accidentally start a GitHub
+device-auth flow: no `copilot.lua`, no `copilot` provider, no `:Copilot auth` command,
+no `<leader>ap`. Run the whole loop on Claude: plan and judge with the strongest model,
+build with a mid-tier one. As of July 2026 that's Fable 5 to plan/judge, Sonnet 5 to
+build (switch model in the sidebar). If the org is zero-data-retention, Fable returns a
+400 — use Opus 4.8 as the top model instead.
 
-**Optimize token cost:**
+**Optimize token cost (opt in to Copilot — e.g. a home machine):**
 Push the token-heavy build onto a flat-rate subscription so the API key only pays for
-the small plan/judge calls. This uses GitHub Copilot for the build step:
+the small plan/judge calls. Copilot is gated behind an env var so it never loads by
+accident; enable it per machine:
 ```bash
-npm install -g @github/copilot   # GitHub Copilot CLI: gives a copilot binary on PATH
-copilot                          # run it once, /login, complete the GitHub device login
+# Home only. Leave this UNSET at work.
+echo 'export ROAM_COPILOT=1' >> ~/.zshrc && source ~/.zshrc   # or ~/.bashrc
+
+# One-time auth for the Copilot provider (writes an OAuth token to
+# ~/.config/github-copilot/ — reused if you already log in via the Copilot CLI):
+nvim -c 'Copilot auth'
 ```
-In the chat buffer switch to the `copilot_acp` adapter for the build (it drives
-`copilot --acp`; auth is the standard GitHub device flow, no API key).
+With `ROAM_COPILOT=1` set, `<leader>ap` (`:AvanteSwitchProvider`) flips between `claude`
+(Anthropic API, the default) and `copilot` (your GitHub Copilot subscription, no API
+key). Do the build on `copilot`, then switch back to `claude` to judge.
 
 Plan and judge with Fable 5 (Anthropic API), build with a Copilot model (GPT-5.x).
