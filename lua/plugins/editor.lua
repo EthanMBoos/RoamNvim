@@ -185,6 +185,14 @@ return {
       { 'nvim-telescope/telescope-ui-select.nvim' },
     },
     config = function()
+      -- Shared ripgrep globs: include gitignored files (e.g. submodules) but
+      -- keep the noise out. Add more '!**/dir/**' entries here as needed.
+      local rg_globs = {
+        '--glob', '!**/.git/*',
+        '--glob', '!**/*build*/**',
+        '--glob', '!**/node_modules/**',
+      }
+
       require('telescope').setup {
         defaults = {
           sorting_strategy = 'ascending',
@@ -196,6 +204,31 @@ return {
               width = 0.87,
               height = 0.80,
             },
+          },
+          -- Used by live_grep (<leader>fw). Default args + include hidden and
+          -- gitignored files, minus the globs above.
+          vimgrep_arguments = vim.iter({
+            {
+              'rg',
+              '--color=never',
+              '--no-heading',
+              '--with-filename',
+              '--line-number',
+              '--column',
+              '--smart-case',
+              '--hidden',
+              '--no-ignore',
+            },
+            rg_globs,
+          }):flatten():totable(),
+        },
+        pickers = {
+          find_files = {
+            -- Used by <leader>ff. Same idea for the file lister.
+            find_command = vim.iter({
+              { 'rg', '--files', '--hidden', '--no-ignore' },
+              rg_globs,
+            }):flatten():totable(),
           },
         },
         extensions = {
