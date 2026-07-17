@@ -24,8 +24,9 @@ mkdir -p ~/.config/ghostty
 mv ~/.config/ghostty/config ~/.config/ghostty/config.bak 2>/dev/null
 ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 
-# 4. Shell config (appends vi mode + fzf to existing zshrc)
-cat ./shell/zshrc >> ~/.zshrc && source ~/.zshrc
+# 4. Shell config (prepends vi mode + fzf to existing zshrc — must load
+#    before anaconda's init block, or conda's early-return can skip it)
+{ cat ./shell/zshrc; cat ~/.zshrc 2>/dev/null; } > ~/.zshrc.new && mv ~/.zshrc.new ~/.zshrc && source ~/.zshrc
 
 # 5. Neovim config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
@@ -93,8 +94,9 @@ mkdir -p ~/.config/ghostty
 mv ~/.config/ghostty/config ~/.config/ghostty/config.bak 2>/dev/null
 ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 
-# 4. Shell config (appends vi mode + fzf to existing bashrc)
-cat ./shell/bashrc >> ~/.bashrc && source ~/.bashrc
+# 4. Shell config (prepends vi mode + fzf to existing bashrc — must load
+#    before anaconda's init block, or conda's early-return can skip it)
+{ cat ./shell/bashrc; cat ~/.bashrc 2>/dev/null; } > ~/.bashrc.new && mv ~/.bashrc.new ~/.bashrc && source ~/.bashrc
 
 # 5. Neovim config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
