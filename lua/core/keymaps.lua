@@ -44,6 +44,12 @@ vim.keymap.set('n', '<leader>ud', function()
   }
 end, { desc = '[U]I: Toggle [D]iagnostic markers' })
 
+-- Toggle soft-wrap for the current window (handy for wide code, tables, logs)
+vim.keymap.set('n', '<leader>uw', function()
+  vim.wo.wrap = not vim.wo.wrap
+  vim.notify('wrap ' .. (vim.wo.wrap and 'on' or 'off'))
+end, { desc = '[U]I: Toggle line [W]rap' })
+
 -- Exit builtin terminal mode more intuitively
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 

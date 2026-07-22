@@ -156,6 +156,7 @@ return {
         { '<leader>r', group = '[R]emote' },
         { '<leader>s', group = '[S]earch',    mode = { 'n', 'v' } },
         { '<leader>t', group = '[T]oggle' },
+        { '<leader>u', group = '[U]I' },
         { '<leader>g', group = '[G]it' },
         { 'gr',        group = 'LSP Actions', mode = { 'n' } },
       },
