@@ -4,6 +4,11 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.have_nerd_font = true
 
+-- Disable netrw so nvim-tree is the sole owner of directory buffers
+-- (nvim-tree recommends setting this before it loads).
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
 require('core.options')
 require('core.keymaps')
 require('core.autocmds')

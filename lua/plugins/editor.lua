@@ -90,6 +90,15 @@ return {
     opts = {
       filters = { dotfiles = false },
       renderer = { group_empty = true },
+      -- Follow and reveal the active buffer in the tree, so jumping to a
+      -- freshly generated file expands the tree to it instead of "missing" it.
+      update_focused_file = { enable = true },
+      -- Auto-refresh the tree when files change on disk (build output, files
+      -- written by external tools, git operations) — pinned on explicitly.
+      filesystem_watchers = { enable = true },
+      -- Git status in the gutter; bump the timeout so status doesn't silently
+      -- go stale on larger repos where the default 400ms refresh times out.
+      git = { enable = true, timeout = 2000 },
     },
   },
 
