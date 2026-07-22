@@ -3,7 +3,18 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Buffer cycling
 vim.keymap.set('n', '<Tab>',     '<cmd>BufferLineCycleNext<CR>', { desc = 'Next buffer' })
 vim.keymap.set('n', '<S-Tab>',   '<cmd>BufferLineCyclePrev<CR>', { desc = 'Prev buffer' })
-vim.keymap.set('n', '<leader>x', '<cmd>bdelete<CR>',             { desc = 'Close buffer' })
+-- Close the current buffer without leaving a blank window: switch this window to
+-- the previous buffer first, then delete the original. Falls back to a plain
+-- bdelete (blank window) only when it's the last real buffer.
+vim.keymap.set('n', '<leader>x', function()
+  local cur = vim.api.nvim_get_current_buf()
+  vim.cmd('bprevious')
+  if vim.api.nvim_get_current_buf() == cur then
+    vim.cmd('bdelete') -- only one buffer left; nothing to switch to
+  else
+    vim.cmd('bdelete ' .. cur)
+  end
+end, { desc = 'Close buffer' })
 
 vim.diagnostic.config {
   update_in_insert = false,
