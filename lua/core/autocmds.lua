@@ -31,3 +31,15 @@ vim.api.nvim_create_autocmd('FileChangedShellPost', {
     vim.notify('File changed on disk — buffer reloaded', vim.log.levels.INFO)
   end,
 })
+
+-- Terminal buffers (e.g. the Claude Code window) start typing immediately instead of
+-- landing in terminal-normal mode — so you can answer prompts without first pressing `i`.
+-- Press <Esc> to drop to normal mode (to scroll); re-focusing the window resumes insert.
+vim.api.nvim_create_autocmd({ 'TermOpen', 'WinEnter' }, {
+  group = vim.api.nvim_create_augroup('term-auto-insert', { clear = true }),
+  callback = function()
+    if vim.bo.buftype == 'terminal' then
+      vim.cmd.startinsert()
+    end
+  end,
+})

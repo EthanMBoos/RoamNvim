@@ -32,10 +32,16 @@ ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
 ln -s "$(pwd)" ~/.config/nvim
 
-# 6. First launch. Plugins install automatically; quit and reopen for the theme cache.
+# 6. Claude Code keybindings (symlink so repo edits apply live). Frees Shift-Tab for
+#    Neovim buffer cycling by moving Claude's mode-cycle to Ctrl+B inside its window.
+mkdir -p ~/.claude
+mv ~/.claude/keybindings.json ~/.claude/keybindings.json.bak 2>/dev/null
+ln -s "$(pwd)/claude/keybindings.json" ~/.claude/keybindings.json
+
+# 7. First launch. Plugins install automatically; quit and reopen for the theme cache.
 nvim
 
-# 7. LSP servers are auto-installed by mason on first file open (no action needed)
+# 8. LSP servers are auto-installed by mason on first file open (no action needed)
 #    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
 #    Exception: ROS C++ needs clangd installed inside the devcontainer image.
 #    See docs/ros1-docker-clangd.md for that setup.
@@ -102,10 +108,16 @@ ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
 ln -s "$(pwd)" ~/.config/nvim
 
-# 6. First launch. Plugins install automatically; quit and reopen for the theme cache.
+# 6. Claude Code keybindings (symlink so repo edits apply live). Frees Shift-Tab for
+#    Neovim buffer cycling by moving Claude's mode-cycle to Ctrl+B inside its window.
+mkdir -p ~/.claude
+mv ~/.claude/keybindings.json ~/.claude/keybindings.json.bak 2>/dev/null
+ln -s "$(pwd)/claude/keybindings.json" ~/.claude/keybindings.json
+
+# 7. First launch. Plugins install automatically; quit and reopen for the theme cache.
 nvim
 
-# 7. LSP servers are auto-installed by mason on first file open (no action needed)
+# 8. LSP servers are auto-installed by mason on first file open (no action needed)
 #    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
 #    Exception: ROS C++ needs clangd installed inside the devcontainer image.
 #    See docs/ros1-docker-clangd.md for that setup.

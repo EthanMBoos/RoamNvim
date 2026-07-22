@@ -50,14 +50,25 @@ vim.keymap.set('n', '<leader>uw', function()
   vim.notify('wrap ' .. (vim.wo.wrap and 'on' or 'off'))
 end, { desc = '[U]I: Toggle line [W]rap' })
 
--- Exit builtin terminal mode more intuitively
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+-- Escape stays a Neovim thing everywhere, including terminal buffers: a single <Esc>
+-- drops straight to normal mode with no delay. Trade-off: terminal programs (Claude Code,
+-- less, etc.) never receive <Esc> — interrupt/stop Claude with <C-c> from insert mode.
+vim.keymap.set('t', '<Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 -- Window navigation
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+
+-- Same navigation from terminal mode (e.g. the Claude Code window): leave terminal mode
+-- first, then move — so <C-hjkl> jumps out of the terminal without pressing <Esc> first.
+-- This claims all four inside terminals (incl. <C-j>, which Claude uses for newline); fine
+-- here since we don't use them in Claude.
+vim.keymap.set('t', '<C-h>', '<C-\\><C-n><C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('t', '<C-l>', '<C-\\><C-n><C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('t', '<C-j>', '<C-\\><C-n><C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('t', '<C-k>', '<C-\\><C-n><C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- Window splits — matches Ghostty pane keys (ctrl+w prefix, vim convention)
 vim.keymap.set('n', '<leader>\\', '<cmd>vsp<CR>',   { desc = 'Split window vertically' })
