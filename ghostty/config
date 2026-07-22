@@ -25,6 +25,10 @@ keybind = ctrl+shift+tab=previous_tab
 keybind = ctrl+a>backslash=new_split:right
 keybind = ctrl+a>minus=new_split:down
 keybind = ctrl+a>x=close_surface
+# Escape hatch for when a split gets squeezed too small and incremental resize
+# (ctrl+shift+arrows) gets stuck.
+# ctrl+a>e resets all splits back to equal sizes.
+keybind = ctrl+a>e=equalize_splits
 
 # Pane resize — direct chord (no prefix) so holding the key repeats and the split glides.
 # ctrl+shift = "Ghostty owns this layer" (same convention as copy/paste/tab above).
