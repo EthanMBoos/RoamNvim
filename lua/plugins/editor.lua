@@ -138,6 +138,7 @@ return {
         map('<leader>gp', gs.preview_hunk, '[G]it [P]review hunk')
         map('<leader>gS', gs.stage_hunk,   '[G]it [S]tage hunk')
         map('<leader>gR', gs.reset_hunk,   '[G]it [R]eset hunk')
+        map('<leader>gb', gs.toggle_current_line_blame, '[G]it [B]lame line (toggle)')
       end,
     },
   },
@@ -311,9 +312,7 @@ return {
         if enabled[vim.bo[bufnr].filetype] then return { timeout_ms = 500 } end
       end,
       default_format_opts = { lsp_format = 'fallback' },
-      formatters_by_ft = {
-        -- lua = { 'stylua' },
-      },
+      formatters_by_ft = {},
     },
   },
 }

@@ -63,7 +63,7 @@ return {
       })
 
       -- Formatter binaries managed by mason but not LSP servers
-      local tools = { 'stylua' }
+      local tools = {}
 
       -- Server configs — add/remove as needed; mason installs them automatically
       ---@type table<string, vim.lsp.Config>
