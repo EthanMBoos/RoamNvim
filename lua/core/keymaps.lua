@@ -16,34 +16,6 @@ vim.keymap.set('n', '<leader>x', function()
   end
 end, { desc = 'Close buffer' })
 
-vim.diagnostic.config {
-  update_in_insert = false,
-  severity_sort = true,
-  float = { border = 'rounded', source = 'if_many' },
-  underline = { severity = { min = vim.diagnostic.severity.WARN } },
-  virtual_text = true,
-  virtual_lines = false,
-  jump = {
-    on_jump = function(_, bufnr)
-      vim.diagnostic.open_float { bufnr = bufnr, scope = 'cursor', focus = false }
-    end,
-  },
-}
-
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic location list' })
-
--- Toggle inline diagnostic markers (virtual text / underline / signs) without
--- disabling diagnostics themselves — <leader>sd and <leader>q still work.
-local diagnostics_visible = true
-vim.keymap.set('n', '<leader>ud', function()
-  diagnostics_visible = not diagnostics_visible
-  vim.diagnostic.config {
-    virtual_text = diagnostics_visible,
-    underline = diagnostics_visible and { severity = { min = vim.diagnostic.severity.WARN } } or false,
-    signs = diagnostics_visible,
-  }
-end, { desc = '[U]I: Toggle [D]iagnostic markers' })
-
 -- Toggle soft-wrap for the current window (handy for wide code, tables, logs)
 vim.keymap.set('n', '<leader>uw', function()
   vim.wo.wrap = not vim.wo.wrap

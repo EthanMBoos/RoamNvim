@@ -151,15 +151,11 @@ return {
       delay = 0,
       icons = { mappings = vim.g.have_nerd_font },
       spec = {
-        { '<leader>a', group = '[A]I (avante)' },
-        { '<leader>c', group = '[C]laude Code' },
         { '<leader>f', group = '[F]ind/[F]iles' },
         { '<leader>r', group = '[R]emote' },
         { '<leader>s', group = '[S]earch',    mode = { 'n', 'v' } },
-        { '<leader>t', group = '[T]oggle' },
         { '<leader>u', group = '[U]I' },
         { '<leader>g', group = '[G]it' },
-        { 'gr',        group = 'LSP Actions', mode = { 'n' } },
       },
     },
   },
@@ -257,25 +253,10 @@ return {
       vim.keymap.set('n', '<leader>fw', b.live_grep,    { desc = '[F]ind by [W]ord (grep)' })
       vim.keymap.set('n', '<leader>ss', b.builtin,      { desc = '[S]earch [S]elect Telescope' })
       vim.keymap.set({ 'n', 'v' }, '<leader>sw', b.grep_string, { desc = '[S]earch current [W]ord' })
-      vim.keymap.set('n', '<leader>sd', b.diagnostics,  { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', b.resume,       { desc = '[S]earch [R]esume' })
       vim.keymap.set('n', '<leader>s.', b.oldfiles,     { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader>sc', b.commands,     { desc = '[S]earch [C]ommands' })
       vim.keymap.set('n', '<leader><leader>', b.buffers, { desc = '[ ] Find existing buffers' })
-
-      -- Telescope-based LSP pickers wired up when a server attaches
-      vim.api.nvim_create_autocmd('LspAttach', {
-        group = vim.api.nvim_create_augroup('telescope-lsp-attach', { clear = true }),
-        callback = function(event)
-          local buf = event.buf
-          vim.keymap.set('n', 'grr', b.lsp_references,                { buffer = buf, desc = '[G]oto [R]eferences' })
-          vim.keymap.set('n', 'gri', b.lsp_implementations,           { buffer = buf, desc = '[G]oto [I]mplementation' })
-          vim.keymap.set('n', 'grd', b.lsp_definitions,               { buffer = buf, desc = '[G]oto [D]efinition' })
-          vim.keymap.set('n', 'gO',  b.lsp_document_symbols,          { buffer = buf, desc = 'Open Document Symbols' })
-          vim.keymap.set('n', 'gW',  b.lsp_dynamic_workspace_symbols, { buffer = buf, desc = 'Open Workspace Symbols' })
-          vim.keymap.set('n', 'grt', b.lsp_type_definitions,          { buffer = buf, desc = '[G]oto [T]ype Definition' })
-        end,
-      })
 
       vim.keymap.set('n', '<leader>/', function()
         b.current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {

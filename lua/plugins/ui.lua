@@ -9,7 +9,6 @@ return {
     opts = {
       flavour = 'mocha',
       integrations = {
-        blink_cmp    = true,
         gitsigns     = true,
         nvimtree     = true,
         telescope    = { enabled = true },
@@ -34,7 +33,6 @@ return {
     },
     config = function()
       local conditions = require 'heirline.conditions'
-      local utils      = require 'heirline.utils'
       local palette    = require('catppuccin.palettes').get_palette 'mocha'
 
       require('heirline').load_colors {
@@ -129,25 +127,6 @@ return {
         },
       }
 
-      -- LSP diagnostics
-      local Diagnostics = {
-        condition = conditions.has_diagnostics,
-        update    = { 'DiagnosticChanged', 'BufEnter' },
-        init = function(self)
-          self.errors   = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.ERROR })
-          self.warnings = #vim.diagnostic.get(0, { severity = vim.diagnostic.severity.WARN })
-        end,
-        {
-          provider = function(self) return self.errors   > 0 and (' E:' .. self.errors)   or '' end,
-          hl = { fg = 'red' },
-        },
-        {
-          provider = function(self) return self.warnings > 0 and (' W:' .. self.warnings) or '' end,
-          hl = { fg = 'yellow' },
-        },
-        Space,
-      }
-
       -- File type
       local FileType = {
         provider = function() return vim.bo.filetype ~= '' and vim.bo.filetype or '' end,
@@ -165,7 +144,7 @@ return {
           hl = { bg = 'bg' },
           Mode, Space, Git, FileName, Space,
           Align,
-          Diagnostics, FileType, Space, Ruler,
+          FileType, Space, Ruler,
         },
       }
     end,

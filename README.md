@@ -1,8 +1,8 @@
 # RoamNvim
 
-Ghostty handles terminal splits and pane navigation. `Ctrl+H/J/K/L` moves between Neovim windows and Ghostty panes with the same keys on both platforms, replacing what tmux used to do. Shell config is included. Complex LSP scenarios like ROS C++ inside devcontainers are documented with working configs, not stubs. Only what gets used is here.
+Ghostty handles terminal splits and pane navigation. `Ctrl+H/J/K/L` moves between Neovim windows and Ghostty panes with the same keys on both platforms, replacing what tmux used to do. Shell config is included. Only what gets used is here.
 
-kickstart.nvim base · catppuccin · heirline · bufferline · remote-nvim.nvim · claudecode.nvim
+kickstart.nvim base · catppuccin · heirline · bufferline · remote-nvim.nvim
 
 Requires Neovim 0.11+.
 
@@ -32,19 +32,14 @@ ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
 ln -s "$(pwd)" ~/.config/nvim
 
-# 6. Claude Code keybindings (symlink so repo edits apply live). Frees Shift-Tab for
-#    Neovim buffer cycling by moving Claude's mode-cycle to Ctrl+B inside its window.
+# 6. Claude Code CLI keybindings (symlink so repo edits apply live). Optional: moves
+#    Claude's mode-cycle off Shift-Tab to Ctrl+B. Skip this step if you don't want it.
 mkdir -p ~/.claude
 mv ~/.claude/keybindings.json ~/.claude/keybindings.json.bak 2>/dev/null
 ln -s "$(pwd)/claude/keybindings.json" ~/.claude/keybindings.json
 
 # 7. First launch. Plugins install automatically; quit and reopen for the theme cache.
 nvim
-
-# 8. LSP servers are auto-installed by mason on first file open (no action needed)
-#    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
-#    Exception: ROS C++ needs clangd installed inside the devcontainer image.
-#    See docs/ros1-docker-clangd.md for that setup.
 ```
 
 ## Linux setup
@@ -108,19 +103,14 @@ ln -s "$(pwd)/ghostty/config" ~/.config/ghostty/config
 mv ~/.config/nvim ~/.config/nvim.bak 2>/dev/null
 ln -s "$(pwd)" ~/.config/nvim
 
-# 6. Claude Code keybindings (symlink so repo edits apply live). Frees Shift-Tab for
-#    Neovim buffer cycling by moving Claude's mode-cycle to Ctrl+B inside its window.
+# 6. Claude Code CLI keybindings (symlink so repo edits apply live). Optional: moves
+#    Claude's mode-cycle off Shift-Tab to Ctrl+B. Skip this step if you don't want it.
 mkdir -p ~/.claude
 mv ~/.claude/keybindings.json ~/.claude/keybindings.json.bak 2>/dev/null
 ln -s "$(pwd)/claude/keybindings.json" ~/.claude/keybindings.json
 
 # 7. First launch. Plugins install automatically; quit and reopen for the theme cache.
 nvim
-
-# 8. LSP servers are auto-installed by mason on first file open (no action needed)
-#    clangd / ts_ls / gopls / jsonls / yamlls / marksman / lua_ls
-#    Exception: ROS C++ needs clangd installed inside the devcontainer image.
-#    See docs/ros1-docker-clangd.md for that setup.
 ```
 
 ## Navigation
@@ -151,21 +141,15 @@ Leader is `<Space>`. Press `<Space>` to see everything via which-key.
 | `<Space>x` | Close buffer |
 | `<Space><Space>` | Find open buffers |
 | `<Space>F` | Format buffer |
-| `gra` / `grn` / `grr` | LSP action / rename / references |
-| `grd` / `gri` / `grt` | LSP definition / implementation / type |
 | `]c` / `[c` | Next / previous git hunk |
 | `<Space>gp/gS/gR` | Hunk: preview / stage / reset (gitsigns) |
 | `<Space>gd/gc/gh/gH` | Diffview: open / close / file history / repo history |
 | `<Space>gL` (visual) | Diffview: history for selected lines |
 | `<Space>fr` | Find and replace across codebase (grug-far) |
-| `<Space>cc` / `<Space>cs` / `<Space>cr` | Claude Code: toggle / send selection / resume session |
-| `<Space>aa` / `<Space>at` / `<Space>ae` | Avante: ask / toggle sidebar / inline edit (defaults) |
-| `<Space>ap` | Avante: switch provider (claude↔copilot; only with `ROAM_COPILOT=1`) |
-| `<Space>q` | Open diagnostic location list |
 
 ## Remote / devcontainers
 
-`remote-nvim.nvim` opens the current project inside its `.devcontainer`, so LSPs and tools run in the container instead of being shimmed from the host. Install `devpod`, open Neovim at the repo root, then run `:RemoteStart`.
+`remote-nvim.nvim` opens the current project inside its `.devcontainer`, so tools run in the container instead of being shimmed from the host. Install `devpod`, open Neovim at the repo root, then run `:RemoteStart`.
 
 | Key | Action |
 |---|---|
@@ -252,48 +236,14 @@ Then `:TSUpdate` inside Neovim.
 
 **Theme not applied**: run `:Lazy reload catppuccin` or restart Neovim.
 
-## AI coding (avante)
+## AI coding (CLI)
 
-In-editor AI via avante.nvim. The plan → build → judge rationale is in the
-comments of `lua/plugins/avante.lua`; this is just setup and the two flows.
-Model names below are a July 2026 snapshot — swap them as cheaper/better options land.
+AI work happens in the terminal, not the editor — there's no in-editor AI plugin
+(avante.nvim and claudecode.nvim were removed). Run the Claude Code CLI in a Ghostty
+pane next to Neovim; `Ctrl+H/J/K/L` moves between the Neovim window and the pane.
 
-**Setup (both flows):**
-```bash
-# Activate: in lua/plugins/avante.lua delete the top guard line:
-#   if true then return {} end
-# (plenary + treesitter are already installed; lazy pulls nui/copilot.lua and
-#  builds avante's companion binary via `make` on first start.)
-
-echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.zshrc && source ~/.zshrc # or ~/.bashrc
-```
-Restart Neovim (run `:Lazy sync` if it doesn't auto-install). Avante's default maps live
-under `<leader>a*`: `<leader>aa` asks, `<leader>at` toggles the sidebar, `<leader>ae` is
-inline edit (see `:h avante` for the rest). Save plans to a `.md` and hand them off.
-
-**Claude API key only (the default — e.g. a work machine):**
-Nothing beyond the setup above. Copilot is opt-in (see below) and stays completely
-unwired unless you ask for it, so there's no way to accidentally start a GitHub
-device-auth flow: no `copilot.lua`, no `copilot` provider, no `:Copilot auth` command,
-no `<leader>ap`. Run the whole loop on Claude: plan and judge with the strongest model,
-build with a mid-tier one. As of July 2026 that's Fable 5 to plan/judge, Sonnet 5 to
-build (switch model in the sidebar). If the org is zero-data-retention, Fable returns a
-400 — use Opus 4.8 as the top model instead.
-
-**Optimize token cost (opt in to Copilot — e.g. a home machine):**
-Push the token-heavy build onto a flat-rate subscription so the API key only pays for
-the small plan/judge calls. Copilot is gated behind an env var so it never loads by
-accident; enable it per machine:
-```bash
-# Home only. Leave this UNSET at work.
-echo 'export ROAM_COPILOT=1' >> ~/.zshrc && source ~/.zshrc   # or ~/.bashrc
-
-# One-time auth for the Copilot provider (writes an OAuth token to
-# ~/.config/github-copilot/ — reused if you already log in via the Copilot CLI):
-nvim -c 'Copilot auth'
-```
-With `ROAM_COPILOT=1` set, `<leader>ap` (`:AvanteSwitchProvider`) flips between `claude`
-(Anthropic API, the default) and `copilot` (your GitHub Copilot subscription, no API
-key). Do the build on `copilot`, then switch back to `claude` to judge.
-
-Plan and judge with Fable 5 (Anthropic API), build with a Copilot model (GPT-5.x).
+The CLI is installed by the setup steps above (`npm install -g @anthropic-ai/claude-code`).
+Authenticate once, either way:
+- **Subscription:** run `claude` and log in via the browser.
+- **API key:** `echo 'export ANTHROPIC_API_KEY="sk-ant-..."' >> ~/.zshrc && source ~/.zshrc`
+  (or `~/.bashrc`).
