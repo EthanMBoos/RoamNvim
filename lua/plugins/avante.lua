@@ -1,86 +1,136 @@
 -- if true then return {} end -- Uncomment to deactivate
 
--- avante.nvim — in-editor AI, set up for a plan -> build -> judge loop
--- (after Mitchell Hashimoto's approach). The plan is the part that matters, so it gets
--- the strongest model. The rest is routine code a cheaper model can write; paying the
--- top model per line isn't worth it.
+-- avante.nvim — in-editor AI for a plan -> build -> judge loop:
+--   1. PLAN  — Fable 5 writes the plan.
+--   2. BUILD — a Copilot model (GPT-5.x) writes the code on your Copilot subscription.
+--   3. JUDGE — back to Fable to review the diff.
 --
---   1. PLAN  — ask Fable 5 for the plan, save it to a .md.
---   2. BUILD — hand the plan to a Copilot model (e.g. GPT-5.x) to write the code,
---              on your Copilot subscription.
---   3. JUDGE — switch back to Fable to review the diff before committing.
+-- <leader>ap :AvanteSwitchProvider — switch provider/billing (claude <-> copilot).
+-- <leader>a? :AvanteModels         — pick a model. This lists models from ALL providers
+--            combined; picking one switches to its provider + model together.
 --
--- Keymaps are avante's defaults (under <leader>a*); claudecode.nvim moved to
--- <leader>c{c,s,r} to make room. See `:h avante` for the full list.
---
--- Two billing paths, one per "provider":
---   * claude  -> Anthropic API, needs ANTHROPIC_API_KEY in your shell. Pay per token;
---                used for plan and judge. The default, always on.
---   * copilot -> GitHub Copilot subscription, no API key. Used for the build.
---
--- Two pickers — don't confuse them:
---   * provider picker  :AvanteSwitchProvider (<leader>ap) — flips the backend, and thus
---                       the billing path: claude <-> copilot. This is the plan/judge vs
---                       build switch. The only command that changes what you're paying.
---   * model picker      :AvanteModels (<leader>a?) — changes the model WITHIN the current
---                       provider. Never switches provider, never triggers auth. On claude
---                       it lists what you set below; on copilot it lists the subscription's
---                       models (GPT-5.x, etc.). Picking a model here is always free/safe.
---
--- COPILOT IS OPT-IN PER MACHINE. It's only wired up when ROAM_COPILOT=1 is set in your
--- shell — set it at home, leave it UNSET at work. When unset: copilot.lua isn't
--- installed, the copilot provider isn't configured, and <leader>ap isn't mapped.
--- The real safety is copilot.lua being absent: no copilot.lua means no `:Copilot auth`
--- and no token machinery, so a GitHub login can't complete. (:AvanteSwitchProvider is
--- avante's own command and still exists; its picker may even list a copilot entry from
--- avante's defaults, but selecting it just errors — it can't link your account.)
+-- Copilot is opt-in per machine: only wired up when ROAM_COPILOT=1 is set.
+
 local enable_copilot = vim.env.ROAM_COPILOT == '1'
+
+-- Copilot's API advertises hundreds of models, but only the ones enabled on YOUR plan
+-- actually work — the rest error with "model_not_supported". Avante shows the whole live
+-- list by default, so we replace it with this whitelist and :AvanteModels only offers
+-- these. Curated to the newest flagship of each family that's enabled on your plan.
+-- To see the full live list + each model's enabled/disabled status, query
+--   https://api.githubcopilot.com/models  with your Copilot token.
+local copilot_models = {
+  'gpt-5.6-terra', -- newest GPT (default)
+  'gpt-5.6-luna',
+  'claude-opus-4.5',
+  'claude-sonnet-5',
+  'gemini-3.1-pro-preview',
+}
 
 local dependencies = {
   'nvim-lua/plenary.nvim',
   'MunifTanjim/nui.nvim',
-}
-
-local providers = {
-  claude = {
-    endpoint = 'https://api.anthropic.com',
-    -- Strongest model, for plan + judge. If your org is zero-data-retention,
-    -- Fable returns a 400 — use 'claude-opus-4-8' as the top model instead.
-    model = 'claude-fable-5',
+  'nvim-tree/nvim-web-devicons', -- file icons in the UI
+  -- Lightweight input UI for the avante prompt. `select` is disabled so it leaves
+  -- vim.ui.select to your telescope-ui-select setup.
+  { 'stevearc/dressing.nvim', opts = { select = { enabled = false } } },
+  -- Paste images straight into prompts.
+  {
+    'HakonHarnes/img-clip.nvim',
+    event = 'VeryLazy',
+    opts = {
+      default = {
+        embed_image_as_base64 = false,
+        prompt_for_file_name = false,
+        drag_and_drop = { insert_mode = true },
+      },
+    },
+  },
+  -- Renders avante's responses as formatted markdown instead of raw text.
+  {
+    'MeanderingProgrammer/render-markdown.nvim',
+    opts = { file_types = { 'markdown', 'Avante' } },
+    ft = { 'markdown', 'Avante' },
   },
 }
 
--- avante has no default mapping for switching provider, so add the one extra key —
--- only when copilot is in play (otherwise there's just one provider to switch to).
-local keys = {}
 if enable_copilot then
-  table.insert(dependencies, 'zbirenbaum/copilot.lua') -- supplies the Copilot OAuth token
-  -- Build step, on the Copilot subscription. gpt-5.5 is the current workhorse — swap the
-  -- string as models move, pick another live in :AvanteModels, or replace this whole
-  -- provider block if you move the build to a different backend. Only rule for the build
-  -- provider: it must bill flat (a subscription), not per-token like claude above.
-  providers.copilot = { model = 'gpt-5.5' }
-  table.insert(keys, {
-    '<leader>ap', '<cmd>AvanteSwitchProvider<CR>', desc = 'AI switch [P]rovider (claude<->copilot)',
+  table.insert(dependencies, {
+    'zbirenbaum/copilot.lua',
+    opts = {
+      suggestion = { enabled = false },
+      panel = { enabled = false },
+    },
   })
 end
 
 return {
   {
     'yetone/avante.nvim',
-    event = 'VeryLazy', -- load after startup so avante installs its default <leader>a* maps
-    -- `make` fetches the prebuilt companion binary (no Rust toolchain needed).
-    build = vim.fn.has('win32') ~= 0
-      and 'powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false'
-      or 'make',
+    event = 'VeryLazy',
     dependencies = dependencies,
-    keys = keys,
+    keys = enable_copilot and {
+      { '<leader>ap', '<cmd>AvanteSwitchProvider<CR>', desc = 'AI switch [P]rovider (claude<->copilot)' },
+    } or {},
     opts = {
-      provider = 'claude', -- Claude/API is the default; copilot is a deliberate switch.
-      providers = providers,
+      provider = 'claude',
+      providers = {
+        claude = {
+          endpoint = 'https://api.anthropic.com',
+          model = 'claude-fable-5',
+        },
+      },
       behaviour = {
-        auto_suggestions = false, -- no ghost-text completion; this is a chat/edit tool
+        auto_suggestions = false,
+      },
+      selector = {
+        provider = 'telescope', -- use telescope for model/file pickers (you have it)
+      },
+      input = {
+        provider = 'dressing', -- nicer prompt box
+      },
+      windows = {
+        width = 25, -- wider sidebar (% of available width)
+        sidebar_header = {
+          include_model = true, -- show active model in the sidebar header
+        },
       },
     },
+    config = function(_, opts)
+      if enable_copilot then
+        -- Use avante's native copilot provider (OAuth via ~/.config/github-copilot).
+        -- Do NOT set __inherited_from = "openai": that uses API-key auth and fails.
+        -- Pick a model at runtime with :AvanteModels.
+        opts.providers.copilot = {
+          model = 'gpt-5.6-terra',
+          extra_request_body = {
+            reasoning_effort = 'high', -- high effort for the reasoning-capable models
+          },
+        }
+      end
+
+      -- Fable 5 uses always-on thinking, so Anthropic rejects `temperature`. Avante
+      -- only strips it for models its regex knows, which misses fable — so teach it.
+      local claude = require('avante.providers.claude')
+      local is_temp_unsupported = claude.is_temperature_unsupported
+      claude.is_temperature_unsupported = function(model)
+        if model and model:match('claude%-fable%-[4-9]') then return true end
+        return is_temp_unsupported(model)
+      end
+
+      require('avante').setup(opts)
+
+      if enable_copilot then
+        -- Replace copilot's live /models query with our whitelist. avante's model
+        -- selector uses list_models as-is when it returns a static table, so this is
+        -- all that :AvanteModels will offer for copilot.
+        local copilot = require('avante.providers.copilot')
+        copilot.list_models = function()
+          return vim.tbl_map(function(id)
+            return { id = id, name = id, display_name = id }
+          end, copilot_models)
+        end
+      end
+    end,
   },
 }
